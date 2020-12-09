@@ -1,12 +1,16 @@
 from django.contrib.auth.models import User
-from rest_framework.authentication import BasicAuthentication
-from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView, ListAPIView
+
+from rest_framework.authentication import BasicAuthentication, SessionAuthentication
+from rest_framework.generics import CreateAPIView, ListAPIView
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from appdirs import unicode
 
 from .serializers import UserSerializer
 
 
-class UserRegisterCreateAPIView(CreateAPIView):
+class UserSignUpCreateAPIView(CreateAPIView):
     """
     This class create a new user
     """
@@ -14,20 +18,23 @@ class UserRegisterCreateAPIView(CreateAPIView):
 
 
 class UserListAPIView(ListAPIView):
-    permission_classes = [IsAdminUser,]
+    permission_classes = [IsAdminUser, ]
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
 
-class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
+class SignInView(APIView):
     """
-    This class provide user change data of his profile, but changing can do admin too
+    This class provide signin to the system, but only authenticated user
     """
-    authentication_classes = [BasicAuthentication, ]
-    permission_classes = [IsAuthenticated | IsAdminUser]
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
 
-
+    def get(self, request, format=None):
+        content = {
+            'user': unicode(request.user),
+            'status': 'authenticated',
+        }
+        return Response(content)
 
 

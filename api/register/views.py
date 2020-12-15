@@ -29,6 +29,7 @@ class SignInView(APIView):
     """
     authentication_classes = [SessionAuthentication, BasicAuthentication]
     permission_classes = [IsAuthenticated]
+    serializer_classes = UserSerializer
 
     def get(self, request, format=None):
         content = {
